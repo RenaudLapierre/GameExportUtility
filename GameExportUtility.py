@@ -70,7 +70,6 @@ scene.batch_export = bpy.props.BoolProperty(
     default=False,
 )
 
-# Store the directory path
 scene.mesh_directory_path = bpy.props.StringProperty(
     name="Directory Path",
     subtype='DIR_PATH',
@@ -78,7 +77,6 @@ scene.mesh_directory_path = bpy.props.StringProperty(
     description="Choose a directory path"
 )
 
-#store Set file name
 scene.set_file_name = bpy.props.StringProperty(
     name="Set File Name",
     subtype="FILE_NAME",
@@ -128,7 +126,6 @@ def set_origin_to_custom(selected_objects, context):
             # Set the 3D cursor to the empty's world location
             context.scene.cursor.location = custom_empty.matrix_world.translation.copy()
 
-            # Deselect all objects, select this one, and make it active
             bpy.ops.object.select_all(action='DESELECT')
             obj.select_set(True)
             context.view_layer.objects.active = obj
@@ -156,7 +153,7 @@ def manipulate_origin(selected_objects, context):
     bpy.ops.object.select_all(action='DESELECT')
     for obj in selected_objects:
         obj.select_set(True)
-        context.view_layer.objects.active = obj  # Ensure the object is active
+        context.view_layer.objects.active = obj
 
         if context.scene.origin_at_bottom:
             set_origin_at_bottom(obj)
@@ -206,7 +203,6 @@ class OBJECT_OT_ExportOperator(bpy.types.Operator):
     bl_description = "Export Selected Meshes"
 
     def execute(self, context):
-        # Save the current blend file.
         bpy.ops.wm.save_as_mainfile(filepath=bpy.data.filepath)
 
         # Filter selection: ignore empties (used only for origin placement).
@@ -243,7 +239,7 @@ class OBJECT_OT_ExportOperator(bpy.types.Operator):
                     context.view_layer.objects.active = obj
                     bpy.ops.object.origin_set(type='ORIGIN_CURSOR', center='MEDIAN')
 
-            # --- MOVE OBJECTS TO (0, 0, 0) FOR EXPORT ---02
+            # --- MOVE OBJECTS TO (0, 0, 0) FOR EXPORT ---
             for obj in selected_objects:
                 obj.location = (0, 0, 0)
 
@@ -258,7 +254,7 @@ class OBJECT_OT_ExportOperator(bpy.types.Operator):
                 os.makedirs(mesh_directory_path)
 
             if context.scene.batch_export:
-                # Use the helper function to export each object individually.
+                # Export each object individually.
                 export_objects(context, selected_objects, export_format, mesh_directory_path, use_modifiers, use_triangulation, use_vertex_colors)
             else:
                 # Single export: export all selected objects together.
@@ -316,7 +312,6 @@ class View3D_PT_Export_Utility(bpy.types.Panel):
         layout = self.layout
         scene = context.scene
         box = layout.box()
-        #row = box.row()
 
         box.label(icon="FILE_FOLDER", text="Path")
         box.prop(context.scene, "mesh_directory_path", text="Folder")
@@ -337,7 +332,6 @@ class View3D_PT_Export_Utility(bpy.types.Panel):
         if context.scene.export_types == 'FBX':
             box.prop(scene.ExportOptions, "include_modifiers_fbx", icon="MODIFIER", text="Export With Modifiers")
             box.prop(scene.ExportOptions, "use_triangles_fbx", icon="MOD_TRIANGULATE", text="Triangulation")
-            #box.separator(type='LINE')
             box.prop(scene.ExportOptions, "use_vertex_colors_fbx", icon="UV_VERTEXSEL", text="Vertex Col.")
         elif context.scene.export_types == 'OBJ':
             box.prop(scene.ExportOptions, "include_modifiers_obj", icon="MODIFIER", text="Include Modifiers")
